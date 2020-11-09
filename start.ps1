@@ -10,9 +10,9 @@ if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 Set-ExecutionPolicy -executionPolicy unrestricted -force -scope localMachine
 
 Remove-Item -path $env:windir\temp\zerologon_tester.zip -force -confirm:$false
-wget "https://github.com/DTC-Inc/picuslabs/blob/master/CVE-2020-1472%20Zerologon/zerologon_tester.zip" -outFile $env:windir\temp\zerologon_tester.zip
+wget "https://codeload.github.com/DTC-Inc/zerologon-tester/zip/master" -outFile $env:windir\temp\zerologon-tester.zip
 
-# Expand-Archive. Updates zerologon_tester with github master.
+# Expand-Archive. Updates zerologon-tester with github master.
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 function Unzip
 {
@@ -20,17 +20,15 @@ function Unzip
     [System.IO.Compression.ZipFile]::ExtractToDirectory($zipfile, $outpath)
 }
 $cur=(Get-Location).Path
-Unzip $env:windir\temp\zerologon_tester.zip $env:windir\temp\zerologon_tester
-
-& "$env:windir\temp\zerologon_tester.ps1"
+Unzip $env:windir\temp\zerologon-tester.zip $env:windir\temp\zerologon-tester
 
 
 $dcname=[System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain().PdcRoleOwner.Name.split('.')[0]
 $dcip=[System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain().PdcRoleOwner.IPAddress
 echo "[*] DC: $dcip ($dcname)"
 cd $cur\zerologon_tester\
-.\zerologon_tester.exe $dcname $dcip
-pause
+.\bin\zerologon_tester.exe $dcname $dcip
+
 
 Set-ExecutionPolicy -executionPolicy remoteSigned -force -scope localMachine
 
